@@ -1,44 +1,11 @@
 # pyinstaller -F --uac-admin main.py --noconsole
 
 import subprocess
-from ahk import AHK
 from threading import Thread
 
-# 获取选中路径文件
-def getsSelectedPathFile():
-    # 创建 AHK 对象
-    ahk = AHK()
 
-    # 定义 AutoHotkey 脚本
-    ahk_script = """
-    ; 拦截 Shift + Delete 快捷键
-    +Delete::
-        ; 获取当前选中的文件路径
-        FilePath := GetSelectedFilePath()
-        if (FilePath) {
-            ; 调用 Python 脚本处理文件删除
-            Run, %A_WorkingDir%\MoveFile.exe "%FilePath%"
-        }
-    return
+# 运行 AutoHotkey\AutoHotkeyU64.exe 文件
+Thread(target=subprocess.run, args=([r'AutoHotkey\AutoHotkeyU64.exe', r'GetFilePath.ahk'], )).start()
 
-    ; 获取当前选中的文件路径
-    GetSelectedFilePath() {
-        Clipboard := ""  ; 清空剪贴板
-        Send, ^c  ; 模拟 Ctrl + C 复制选中的文件路径
-        ClipWait, 1  ; 等待剪贴板内容
-        if (ErrorLevel) {
-            MsgBox, 无法获取选中的文件路径
-            return
-        }
-        FilePath := Clipboard
-        Clipboard := ""  ; 清空剪贴板
-        return FilePath
-    }
-    """
-
-    # 执行 AutoHotkey 脚本
-    ahk.run_script(ahk_script)
-
-Thread(target=getsSelectedPathFile).start()  # 启动一个线程运行获取文件路径的函数
-
-Thread(target=subprocess.run, args=([r"DeleteFile.exe"],)).start()  # 启动一个线程运行.exe文件
+# 运行 DeleteFile.exe 文件
+Thread(target=subprocess.run, args=([r'DeleteFile.exe'], )).start()
